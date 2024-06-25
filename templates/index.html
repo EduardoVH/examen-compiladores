@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analizador</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #333;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            margin-top: 20px;
+            flex-wrap: wrap; /* Para ajustar a múltiples líneas si es necesario */
+        }
+
+        .left-section {
+            width: 100%; /* Ocupar todo el ancho en dispositivos pequeños */
+            text-align: center; /* Centrar el contenido */
+        }
+
+        .right-section {
+            width: 100%; /* Ocupar todo el ancho en dispositivos pequeños */
+            margin-top: 20px; /* Espacio entre secciones */
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            color: #2a2793;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 4px;
+            color: #333;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #2a2793;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px; /* Espacio superior */
+        }
+
+        input[type="submit"]:hover {
+            background-color: #2a2793;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #2a2793;
+            font-weight: bold;
+            color: white;
+        }
+
+        td {
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .AS {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .AS > div {
+            width: 100%;
+            padding: 15px;
+            background-color: #ffffff;
+            border-radius: 8px;
+        }
+
+        .AS h2 {
+            font-size: 1.5rem;
+            color: #2a2793;
+            margin-bottom: 10px;
+        }
+
+        .AS pre,
+        .AS p {
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left-section">
+            <h2>Analizador</h2>
+            <form method="POST" class="mb-6">
+                <textarea name="code" rows="10">{{ request.form.code if request.method == 'POST' else '' }}</textarea>
+                <center><input type="submit" value="Analizar"></center>
+            </form>
+        </div>
+        <div class="right-section">
+            <div>
+                <h2>Análisis Léxico</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Palabra reservada</th>
+                            <th>Identificador</th>
+                            <th>Número</th>
+                            <th>Símbolo</th>
+                            <th>Paréntesis izquierdo</th>
+                            <th>Paréntesis Derecho</th>
+                            <th>Llave izquierda</th>
+                            <th>Llave Derecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for token in tokens %}
+                        <tr>
+                            <td>{{ token.value }}</td>
+                            <td>{{ 'X' if token.type in ['INT', 'RETURN'] else '' }}</td>
+                            <td>{{ 'X' if token.type == 'ID' else '' }}</td>
+                            <td>{{ 'X' if token.type == 'NUMBER' else '' }}</td>
+                            <td>{{ 'X' if token.type in ['PLUS', 'MINUS', 'TIMES', 'DIVIDE', 'ASSIGN', 'LT', 'LE', 'GT', 'GE', 'EQ', 'NE', 'DOT', 'SEMICOLON', 'COMMA', 'SINGLE_QUOTE'] else '' }}</td>
+                            <td>{{ 'X' if token.type == 'LPAREN' else '' }}</td>
+                            <td>{{ 'X' if token.type == 'RPAREN' else '' }}</td>
+                            <td>{{ 'X' if token.type == 'LBRACE' else '' }}</td>
+                            <td>{{ 'X' if token.type == 'RBRACE' else '' }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td>TOTAL</td>
+                            <td>{{ counts.reserved }}</td>
+                            <td>{{ counts.id }}</td>
+                            <td>{{ counts.number }}</td>
+                            <td>{{ counts.symbol }}</td>
+                            <td>{{ counts.lparen }}</td>
+                            <td>{{ counts.rparen }}</td>
+                            <td>{{ counts.lbrace }}</td>
+                            <td>{{ counts.rbrace }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="AS">
+                <div>
+                    <h2>Análisis Sintáctico</h2>
+                    <pre>{{ syntax_result }}</pre>
+                </div>
+                <div>
+                    <h2>Análisis Semántico</h2>
+                    <p>{{ semantic_result }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
